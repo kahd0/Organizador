@@ -1,17 +1,21 @@
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, 
-                               QComboBox, QDateEdit, QTextEdit, QPushButton, QMessageBox)
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
+    QComboBox, QDateEdit, QTextEdit, QPushButton, QMessageBox
+)
 from PySide6.QtCore import QDate
 from pathlib import Path
 import json
-import datetime
+
 import config
-import subprocess
+from paths import requisito_dir, activity_folder_name
+from utils.fs import open_folder
+
 
 class NovaAtividadeWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Nova Atividade")
-        self.setMinimumWidth(400)
+        self.setMinimumWidth(420)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
@@ -77,9 +81,8 @@ class NovaAtividadeWindow(QWidget):
         self.criar_mais_btn.clicked.connect(self.criar_mais)
         self.cancelar_btn.clicked.connect(self.close)
 
-
-    def criar_pasta_json(self):
-        """Cria pasta na pasta Pendentes com nome correto e salva o JSON"""
+    def _criar_pasta_json(self) -> Path:
+        """Cria pasta na pasta Pendentes com nome correto e salva o JSON."""
         tipo = self.tipo_dropdown.currentText()
         id_ = self.id_input.text().strip()
         nome = self.nome_input.text().strip()
@@ -101,16 +104,12 @@ class NovaAtividadeWindow(QWidget):
             "tipo": tipo
         }
 
-        # Definir pasta base
-        pasta_base = config.PASTA_ATIVIDADES
-
-        # Se houver requisito, cria pasta pai Requisito X
-        if requisito:
-            pasta_base = pasta_base / f"Requisito - {requisito}"
-            pasta_base.mkdir(parents=True, exist_ok=True)
+        # Definir pasta base (com requisito, se houver)
+        pasta_base = requisito_dir(config.PASTA_ATIVIDADES, requisito)
+        pasta_base.mkdir(parents=True, exist_ok=True)
 
         # Pasta da atividade com nome [Tipo] - [ID]
-        pasta_atividade = pasta_base / f"{tipo} - {id_}"
+        pasta_atividade = pasta_base / activity_folder_name(tipo, id_)
         pasta_atividade.mkdir(parents=True, exist_ok=True)
 
         # Salvar JSON
@@ -122,15 +121,15 @@ class NovaAtividadeWindow(QWidget):
 
     def criar(self):
         try:
-            pasta = self.criar_pasta_json()
-            subprocess.Popen(["explorer", str(pasta)])
+            pasta = self._criar_pasta_json()
+            open_folder(pasta)
             self.close()
         except Exception as e:
             QMessageBox.warning(self, "Erro", f"Não foi possível criar a atividade:\n{e}")
 
     def criar_mais(self):
         try:
-            self.criar_pasta_json()
+            self._criar_pasta_json()
             # limpa campos para nova atividade
             self.tipo_dropdown.setCurrentIndex(0)
             self.id_input.clear()
