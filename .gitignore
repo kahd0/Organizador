@@ -1,0 +1,74 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+ENV/
+*.env
+.venv*/
+.venv*/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Cache de pacotes
+.cache/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Arquivos temporários
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# --- IDEs/Editor ---
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# --- Sistema ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Build/Distribuição ---
+build/
+dist/
+*.spec
+*.manifest
+*.exe
+*.dll
+*.so
+*.dylib
+
+# --- Configuração local ---
+# (manter fora do repositório configs de pasta de atividades locais)
+config_local.py
+*.ini
+*.cfg
+*.json
+
+# --- Qt/PySide ---
+# arquivos gerados por ferramentas de UI
+*.qrc
+*.ui
+*_rc.py
+*_ui.py
+
+# --- Testes ---
+.coverage
+coverage.xml
+htmlcov/
+pytestdebug.log
