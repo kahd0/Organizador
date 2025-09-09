@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMessageBox, QWidget, QStyle
 from PySide6.QtGui import QAction, QIcon, QCursor
 from atividades import carregar_atividades
-from config import ICONES_STATUS
+from config import ICONES_STATUS, ConfigWindow
 import sys
 import subprocess
 import traceback
@@ -35,6 +35,10 @@ class TrayApp:
 
         # Cria menu com parent para evitar GC e preenche
         self.menu = QMenu(self.window)
+
+        # inicializa o atributo da janela de configuração (evita AttributeError)
+        self.config_window = None
+
         try:
             self.atualizar_menu()
         except Exception:
@@ -50,13 +54,13 @@ class TrayApp:
         self.menu.clear()
 
         # Itens fixos (passando self.menu como parent)
-        sair = QAction("Sair", self.menu)
-        sair.triggered.connect(self.app.quit)
-        self.menu.addAction(sair)
+        self.exit_action = QAction("Sair", self.menu)
+        self.exit_action.triggered.connect(self.exit_app)
+        self.menu.addAction(self.exit_action)
 
-        config = QAction("Configuração", self.menu)
-        config.triggered.connect(self.abrir_configuracao)
-        self.menu.addAction(config)
+        self.config_action = QAction("Configurações", self.menu)
+        self.config_action.triggered.connect(self.open_config)
+        self.menu.addAction(self.config_action)
 
         self.menu.addSeparator()
 
@@ -84,7 +88,8 @@ class TrayApp:
     def criar_acao_atividade(self, atividade):
         tipo = atividade.get("tipo", "") or ""
         prefixo = tipo[:2].upper() if tipo else ""
-        nome_menu = f"{ICONES_STATUS.get(atividade.get('status',''), '')} {prefixo} {atividade.get('id','')}"
+        # strip para evitar espaços redundantes
+        nome_menu = f"{ICONES_STATUS.get(atividade.get('status',''), '')} {prefixo} {atividade.get('id','')}".strip()
         if atividade.get("requisito"):
             nome_menu += f" - {atividade['requisito']}"
 
@@ -106,8 +111,21 @@ class TrayApp:
         except Exception as e:
             QMessageBox.warning(self.window, "Erro", f"Não foi possível abrir a pasta: {e}")
 
-    def abrir_configuracao(self):
-        QMessageBox.information(self.window, "Configuração", "Janela de configuração (em desenvolvimento)")
+    def open_config(self):
+        # inicializa a janela apenas uma vez e guarda referência
+        if self.config_window is None:
+            self.config_window = ConfigWindow()
+        self.config_window.show()
+        self.config_window.raise_()
+        self.config_window.activateWindow()
+
+    def exit_app(self):
+        # usa o nome correto do atributo e encerra a aplicação
+        try:
+            self.tray.hide()
+        except Exception:
+            pass
+        self.app.quit()
 
     def nova_atividade(self):
         QMessageBox.information(self.window, "Nova Atividade", "Criar nova atividade (em desenvolvimento)")
