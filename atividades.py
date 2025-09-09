@@ -1,7 +1,7 @@
 import json
 import datetime
 from pathlib import Path
-from config import PASTA_ATIVIDADES
+import config  # IMPORTAR O MÓDULO INTEIRO, não a variável
 
 def carregar_atividades():
     """
@@ -11,30 +11,16 @@ def carregar_atividades():
     """
     atividades = []
 
-    base = PASTA_ATIVIDADES
-    if not base.exists():
-        # Não existir a pasta não é erro grave — apenas retorna lista vazia.
-        return atividades
-
-    for arquivo_json in base.rglob("atividade.json"):
+    for arquivo_json in config.PASTA_ATIVIDADES.rglob("atividade.json"):
         try:
             with open(arquivo_json, "r", encoding="utf-8") as f:
                 at = json.load(f)
 
-            if not isinstance(at, dict):
-                continue
-
-            # Ajusta status se necessário (se houver campo "prazo")
-            prazo_str = at.get("prazo")
-            if prazo_str:
-                try:
-                    prazo = datetime.date.fromisoformat(prazo_str)
-                    hoje = datetime.date.today()
-                    if at.get("status") != "Finalizado" and prazo < hoje:
-                        at["status"] = "Atrasado"
-                except Exception:
-                    # formato inválido: ignora ajuste de prazo
-                    pass
+            # Ajusta status se necessário
+            prazo = datetime.date.fromisoformat(at["prazo"])
+            hoje = datetime.date.today()
+            if at["status"] != "Finalizado" and prazo < hoje:
+                at["status"] = "Atrasado"
 
             # Guarda caminho da atividade
             at["caminho"] = str(arquivo_json.parent)
