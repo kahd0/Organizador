@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMessageBox,
 from PySide6.QtGui import QAction, QIcon, QCursor
 from atividades import carregar_atividades
 from config import ICONES_STATUS, ConfigWindow
+from nova_atividade import NovaAtividadeWindow
 import sys
 import subprocess
 import traceback
@@ -119,7 +120,8 @@ class TrayApp:
         self.app.quit()
 
     def nova_atividade(self):
-        QMessageBox.information(self.window, "Nova Atividade", "Criar nova atividade (em desenvolvimento)")
+        self.nova_window = NovaAtividadeWindow()
+        self.nova_window.show()
 
     def abrir_gerenciamento(self):
         QMessageBox.information(self.window, "Gerenciamento", "Tela de gerenciamento (em desenvolvimento)")
