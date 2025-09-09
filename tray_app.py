@@ -3,6 +3,7 @@ from PySide6.QtGui import QAction, QIcon, QCursor
 from atividades import carregar_atividades
 from config import ICONES_STATUS, ConfigWindow
 from nova_atividade import NovaAtividadeWindow
+from controle_atividades import ControleAtividadesWindow
 import sys
 import subprocess
 import traceback
@@ -124,7 +125,10 @@ class TrayApp:
         self.nova_window.show()
 
     def abrir_gerenciamento(self):
-        QMessageBox.information(self.window, "Gerenciamento", "Tela de gerenciamento (em desenvolvimento)")
+        self.gerenciamento_window = ControleAtividadesWindow()
+        self.gerenciamento_window.show()
+        self.gerenciamento_window.raise_()
+        self.gerenciamento_window.activateWindow()
 
     def on_tray_activated(self, reason):
         if reason == QSystemTrayIcon.DoubleClick:
